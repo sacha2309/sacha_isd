@@ -47,14 +47,49 @@ module.exports = (db, secretKey) => {
       });
     }
 
-    try {
-      const sql = `
-        INSERT INTO users 
-        (first_name, last_name, country, dob, phone, email, password, payment_method)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `;
+   // try {
+  //     const sql = `
+  //       INSERT INTO users 
+  //       (first_name, last_name, country, dob, phone, email, password, payment_method)
+  //       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  //     `;
 
-      db.query(sql, [
+  //     db.query(sql, [
+  //       firstName,
+  //       lastName,
+  //       nationality,
+  //       dateOfBirth,
+  //       phone,
+  //       email,
+  //       password,
+  //       paymentMethod
+  //     ], (err, result) => {
+  //       if (err) {
+  //         console.error('Database Registration Error:', err.message);
+  //         if (err.code === 'ER_DUP_ENTRY') {
+  //           return res.status(409).json({ message: 'Email already exists.' });
+  //         }
+  //         return res.status(500).json({
+  //           message: 'Registration failed due to a server error. Check database columns.'
+  //         });
+  //       }
+  //       return res.status(201).json({ message: 'User registered successfully!' });
+  //     });
+  //   } catch (error) {
+  //     console.error('Registration Catch Block Error:', error);
+  //     res.status(500).json({ message: 'Internal server error during registration.' });
+  //   }
+  // });
+  
+   const sql = `
+      INSERT INTO users 
+      (first_name, last_name, country, dob, phone, email, password, payment_method)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *
+    `;
+
+    try {
+      const result = await db.query(sql, [
         firstName,
         lastName,
         nationality,
@@ -63,24 +98,16 @@ module.exports = (db, secretKey) => {
         email,
         password,
         paymentMethod
-      ], (err, result) => {
-        if (err) {
-          console.error('Database Registration Error:', err.message);
-          if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ message: 'Email already exists.' });
-          }
-          return res.status(500).json({
-            message: 'Registration failed due to a server error. Check database columns.'
-          });
-        }
-        return res.status(201).json({ message: 'User registered successfully!' });
-      });
-    } catch (error) {
-      console.error('Registration Catch Block Error:', error);
-      res.status(500).json({ message: 'Internal server error during registration.' });
+      ]);
+      res.status(201).json({ message: 'User registered successfully!', user: result.rows[0] });
+    } catch (err) {
+      console.error('Database Registration Error:', err.message);
+      if (err.code === '23505') { // Postgres unique violation
+        return res.status(409).json({ message: 'Email already exists.' });
+      }
+      res.status(500).json({ message: 'Registration failed due to a server error.' });
     }
   });
-
   // ===================================================
   // 2. LOGIN ROUTE
   // ===================================================

@@ -17,24 +17,55 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Serve React frontend (only if testing full-stack locally)
+const frontendBuildPath = path.join(__dirname, 'client', 'build');
+if (fs.existsSync(frontendBuildPath)) {
+    app.use(express.static(frontendBuildPath));
+    app.all(/^\/.*/, (req, res) => {
+        res.sendFile(path.join(frontendBuildPath, 'index.html'));
+    });
+}
+
+
+
 // ---------------- Database ----------------
-const dbPool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'sacha123',
-    database: process.env.DB_NAME || 'pdf_db',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+// const dbPool = mysql.createPool({
+//     host: process.env.DB_HOST || 'localhost',
+//     user: process.env.DB_USER || 'root',
+//     password: process.env.DB_PASSWORD || 'sacha123',
+//     database: process.env.DB_NAME || 'pdf_db',
+//     waitForConnections: true,
+//     connectionLimit: 10,
+//     queueLimit: 0
+// });
+
+// dbPool.getConnection((err, connection) => {
+//     if (err) {
+//         console.error('❌ MySQL Connection Failed:', err.message);
+//         process.exit(1);
+//     }
+//     console.log('✅ Connected to MySQL Database');
+//     connection.release();
+// });
+
+// ---------------- Database ----------------
+const { Pool } = require('pg');
+
+const dbPool = new Pool({
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    port: 5432, // default Postgres port
+    max: 10,    // max connections
 });
 
-dbPool.getConnection((err, connection) => {
+dbPool.connect((err) => {
     if (err) {
-        console.error('❌ MySQL Connection Failed:', err.message);
+        console.error('❌ Postgres Connection Failed:', err.message);
         process.exit(1);
     }
-    console.log('✅ Connected to MySQL Database');
-    connection.release();
+    console.log('✅ Connected to Postgres Database');
 });
 
 // ---------------- JWT Middleware ----------------
