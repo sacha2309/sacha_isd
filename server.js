@@ -49,24 +49,29 @@ if (fs.existsSync(frontendBuildPath)) {
 // });
 
 // ---------------- Database ----------------
-const { Pool } = require('pg');
+const { Pool } = require('pg'); // make sure you require 'pg' at the top
 
 const dbPool = new Pool({
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
+    host: process.env.DB_HOST,       // e.g., dpg-d5a3a43uibrs73bkgds0-a
+    port: process.env.DB_PORT || 5432, // Render Postgres default port
+    database: process.env.DB_NAME,   // e.g., news_db_sxcv
+    user: process.env.DB_USER,       // e.g., news_db_users
     password: process.env.DB_PASSWORD,
-    port: 5432, // default Postgres port
-    max: 10,    // max connections
+    max: 10,                         // max connections
+    idleTimeoutMillis: 30000,        // close idle clients after 30s
+    connectionTimeoutMillis: 2000,   // return an error after 2s if connection fails
 });
 
-dbPool.connect((err) => {
+// Optional: test the connection
+dbPool.connect((err, client, release) => {
     if (err) {
         console.error('❌ Postgres Connection Failed:', err.message);
-        process.exit(1);
+    } else {
+        console.log('✅ Connected to Postgres Database');
+        release();
     }
-    console.log('✅ Connected to Postgres Database');
 });
+
 
 // ---------------- JWT Middleware ----------------
 const authenticateToken = (req, res, next) => {
