@@ -13,7 +13,15 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'A_VERY_STRONG_AND_RANDOM_SECRET_KEY';
 
 // ---------------- Middleware ----------------
-app.use(cors());
+//app.use(cors());
+app.use(cors({
+  origin: [
+    "https://your-site-name.netlify.app",
+    "http://localhost:3000"
+  ],
+  credentials: true
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -114,7 +122,7 @@ app.get("/api/pdfs", (req, res) => {
         { id: 2, title: "Haaretz ", filename: "Haaretz.pdf",language: "english" , date: "2025-12-10", country: "israel" },
         { id: 3, title: " el mundo", filename: "el mundo.pdf", language: "spanish" , date: "2025-12-26", country: "Spain" },
         { id: 4, title: " le parisien", filename: "le parisien.pdf", language: "french" , date: "2025-12-09", country: "France" },
-        { id: 4, title: "جريدة الاخبار", filename: "الاخبار.pdf", language: "arabic" , date: "2025-10-06", country: "Lebanon" }
+        { id: 5, title: "جريدة الاخبار", filename: "الاخبار.pdf", language: "arabic" , date: "2025-10-06", country: "Lebanon" }
     ]);
 });
 // ---------------- Test ----------------

@@ -7,7 +7,8 @@ import { useAuth } from '../contexts/UserContext.js';
 import { ReturnButton } from '../components/ReturnButton.js'; 
 
 // Backend server port
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api`;
+
 
 // Country phone codes mapping
 const COUNTRY_PHONE_CODES = {

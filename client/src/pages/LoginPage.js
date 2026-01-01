@@ -9,7 +9,8 @@ import { useAuth } from '../contexts/UserContext.js';
 import { ReturnButton } from '../components/ReturnButton.js'; 
 
 // FINAL FIX: Correct port 5000 for backend
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${process.env.REACT_APP_API_URL}/api`;
+
 
 export default function LoginPage() {
     const navigate = useNavigate();

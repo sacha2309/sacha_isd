@@ -35,18 +35,28 @@ const UserDashboard = () => {
             return;
         }
 
-        const fetchDocuments = async () => {
-            try {
-                // Fetch documents from the protected API endpoint
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/pdfs`);
-                setDocuments(response.data);
-            } catch (err) {
-                console.error("Error fetching protected document list:", err);
-                setError("Failed to load documents. Check server, network, and token authorization."); 
-            } finally {
-                setLoading(false); 
+      const fetchDocuments = async () => {
+    try {
+        const token = localStorage.getItem('token');
+
+        const response = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/pdfs`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             }
-        };
+        );
+
+        setDocuments(response.data);
+    } catch (err) {
+        console.error("Error fetching protected document list:", err);
+        setError("Failed to load documents. Please log in again.");
+    } finally {
+        setLoading(false);
+    }
+};
+
 
         fetchDocuments();
     }, [isAuthenticated, navigate]);

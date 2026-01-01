@@ -11,7 +11,8 @@ const HomePage = () => {
     const [error, setError] = useState(null);
 
     // This ensures the request is sent via the proxy defined in client/package.json (http://localhost:5000).
-    const BACKEND_API_URL = '/api/pdfs';
+    const BACKEND_API_URL = `${process.env.REACT_APP_API_URL}/api/pdfs`;
+
 
     useEffect(() => {
         const fetchPdfs = async () => {
@@ -19,12 +20,15 @@ const HomePage = () => {
                 setLoading(true);
                 setError(null);
 
-                const response = await fetch(BACKEND_API_URL, {
-                    method: 'GET',
-                    headers: {
-                        Accept: 'application/json',
-                    },
-                });
+             const response = await fetch(BACKEND_API_URL, {
+    method: 'GET',
+    headers: {
+        Accept: 'application/json',
+        // Include token if protected route
+        Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+    },
+});
+
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
