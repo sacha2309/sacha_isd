@@ -15,7 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'A_VERY_STRONG_AND_RANDOM_SECRET_KE
 // ---------------- Middleware ----------------
 app.use(cors({
   origin: [
-    "https://chimerical-brioche-b4f82a.netlify.app",
+    "https://regal-klepon-7f98fb.netlify.app",
     "http://localhost:3000"
   ],
   credentials: true
