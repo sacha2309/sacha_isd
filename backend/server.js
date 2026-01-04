@@ -26,13 +26,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ---------------- Database ----------------
 const dbPool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'sacha123',
-    database: process.env.DB_NAME || 'pdf_db',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+     uri: process.env.DATABASE_URL || 'mysql://root:WSMhcURZBPTuzOkFoSJRGgTCIEAJOWAA@turntable.proxy.rlwy.net:52396/railway',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+    // host: process.env.DB_HOST || 'localhost',
+    // user: process.env.DB_USER || 'root',
+    // password: process.env.DB_PASSWORD || 'sacha123',
+    // database: process.env.DB_NAME || 'pdf_db',
+    // port: process.env.DB_PORT || 3306, // make sure you read DB_PORT
+    // waitForConnections: true,
+    // connectionLimit: 10,
+    // queueLimit: 0
 });
 
 dbPool.getConnection((err, connection) => {
