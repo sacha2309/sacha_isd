@@ -93,7 +93,7 @@ app.use('/public_tts', express.static(publicTtsPath));
 // ---------------- List PDFs ----------------
 app.get("/api/pdfs", (req, res) => {
     res.json([
-        { id: 1, title: "The associated press ", filename: "AP.pdf", language: "english" , date: "2025-12-12", country: "USA"},
+        { id: 1, title: "The associated press ", filename: "ap.pdf", language: "english" , date: "2025-12-12", country: "USA"},
         { id: 2, title: "Haaretz ", filename: "Haaretz.pdf",language: "english" , date: "2025-12-10", country: "israel" },
         { id: 3, title: " el mundo", filename: "el mundo.pdf", language: "spanish" , date: "2025-12-26", country: "Spain" },
         { id: 4, title: " le parisien", filename: "le parisien.pdf", language: "french" , date: "2025-12-09", country: "France" },
