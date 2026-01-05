@@ -6,6 +6,7 @@ const pdfParse = require("pdf-parse");
 const { summarizeText } = require("../summarize");
 const { translateText } = require("../utils/translate");
 const { textToSpeech } = require("./tts");
+const { extractText } = require('../utils/extractText'); // utils folder
 
 const router = express.Router();
 
