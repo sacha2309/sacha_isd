@@ -9,7 +9,7 @@ const { textToSpeech } = require('./tts');
 module.exports = (db) => {
   const router = express.Router();
 
-  // -------------------- Summarize PDF --------------------
+  // -------------------- Summarize PDF --------------git------
   router.post('/summarize', async (req, res) => {
     const { filename, userId } = req.body;
     if (!filename || !userId) return res.status(400).json({ error: 'Missing filename or userId.' });

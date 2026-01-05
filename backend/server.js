@@ -7,7 +7,7 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { Language } = require('@google/genai');
 require('dotenv').config();
-const pdfRoutes = require('./routes/pdf'); 
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'A_VERY_STRONG_AND_RANDOM_SECRET_KEY';
@@ -80,7 +80,7 @@ try {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", authenticateToken, aiRoutes);
-app.use("/api/pdfs", pdfRoutes);
+
 // ---------------- Public PDFs ----------------
 const publicPdfsPath = path.join(__dirname, "public_pdfs");
 if (!fs.existsSync(publicPdfsPath)) fs.mkdirSync(publicPdfsPath);
