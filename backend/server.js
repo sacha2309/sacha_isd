@@ -7,6 +7,10 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { Language } = require('@google/genai');
 require('dotenv').config();
+const pdfRoutes = require('./routes/pdf');
+app.use('/api/pdf', pdfRoutes);
+
+app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')));
 
 const app = express();
 const PORT = process.env.PORT || 5000;

@@ -20,6 +20,21 @@ export async function fetchTranslation(text, language, token) {
     return res.data;
 }
 
+// Search inside PDFs
+export async function fetchPdfSearch(filename, keyword, token) {
+    if (!filename || !keyword || keyword.trim() === "") return [];
+
+    const backendUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+    const res = await axios.post(
+        `${backendUrl}/api/pdf/search`,
+        { filename, term: keyword },
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return res.data; // Returns [{ page, textSnippet }, ...]
+}
+
 // Translate PDF content directly
 export async function fetchPdfTranslation(filename, language, token) {
     const res = await axios.post(

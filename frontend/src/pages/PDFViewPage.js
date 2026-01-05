@@ -93,46 +93,47 @@ const PDFViewPage = () => {
     };
 
     // --- Search inside PDF ---
-    const handleSearch = async () => {
-        if (!cleanFilename) return setResult('Error: PDF filename not found.');
-        if (!searchTerm.trim()) return setResult('Please enter a search term.');
-        if (!authToken) return setResult("❌ Please register or login first.");
+const handleSearch = async () => {
+    if (!cleanFilename) return setResult('Error: PDF filename not found.');
+    if (!searchTerm.trim()) return setResult('Please enter a search term.');
+    if (!authToken) return setResult("❌ Please register or login first.");
 
-        setLoading(true); setResult(''); setCurrentAction('Search');
+    setLoading(true); 
+    setResult(''); 
+    setCurrentAction('Search');
 
-        try {
-            const data = await fetchPdfSearch(cleanFilename, searchTerm, authToken); 
-            if (data.length === 0) {
-                setResult(`No matches found for "${searchTerm}".`);
-            } else {
-                let formatted = data.map((d, i) => `📄 Match ${i+1}:\n${d.textSnippet}...\n`).join('\n\n');
-                setResult(formatted);
-            }
-        } catch (err) {
-            setResult(`Error: ${err.response?.data?.error || err.message}`);
+    try {
+        const data = await fetchPdfSearch(cleanFilename, searchTerm, authToken); 
+
+        if (!data || data.length === 0) {
+            setResult(`No matches found for "${searchTerm}".`);
+        } else {
+            const formatted = data.map((d, i) => {
+                // snippet with ~30 characters before and after the search term
+                const snippet = d.textSnippet;
+                const lowerSnippet = snippet.toLowerCase();
+                const termIndex = lowerSnippet.indexOf(searchTerm.toLowerCase());
+
+                let displaySnippet = snippet;
+                if (termIndex !== -1) {
+                    const start = Math.max(termIndex - 30, 0);
+                    const end = Math.min(termIndex + searchTerm.length + 30, snippet.length);
+                    displaySnippet = (start > 0 ? '...' : '') 
+                        + snippet.substring(start, end) 
+                        + (end < snippet.length ? '...' : '');
+                }
+
+                return `📄 Match ${i + 1} (Page ${d.page || '?'})\n${displaySnippet}`;
+            }).join('\n\n');
+
+            setResult(formatted);
         }
+    } catch (err) {
+        setResult(`Error: ${err.response?.data?.error || err.message}`);
+    }
 
-        setLoading(false);
-    };
-
-    return (
-        <div style={{ padding: '20px', maxWidth: '1200px', margin: '20px auto' }}>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <button
-                    onClick={() => navigate('/dashboard')}
-                    style={{
-                        backgroundColor: '#34495e',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '10px 15px',
-                        fontWeight: 'bold',
-                    }}
-                >
-                    ⬅️ Back to Dashboard
-                </button>
-            </div>
+    setLoading(false);
+};
 
             {/* Action Buttons */}
             <div style={{
@@ -203,8 +204,7 @@ const PDFViewPage = () => {
                     )}
                 </div>
             </div>
-        </div>
-    );
+        
 };
 
 export default PDFViewPage;
