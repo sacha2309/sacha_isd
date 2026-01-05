@@ -1,27 +1,29 @@
-// routes/auth.js (PostgreSQL version)
 const express = require('express');
 const jwt = require('jsonwebtoken');
 
-module.exports = (db, secretKey) => {
+module.exports = (dbPool, secretKey) => {
   const router = express.Router();
 
-  // -------------------- TOKEN VERIFICATION --------------------
+  // ================== TOKEN VERIFICATION ==================
   const verifyToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' });
+    if (!token) {
+      return res.status(401).json({ message: 'Access denied. No token provided.' });
+    }
 
     jwt.verify(token, secretKey, (err, decoded) => {
-      if (err) return res.status(403).json({ message: 'Invalid or expired token.' });
+      if (err) {
+        return res.status(403).json({ message: 'Invalid or expired token.' });
+      }
       req.user = decoded;
       next();
     });
   };
-  router.verifyToken = verifyToken;
 
-  // -------------------- REGISTER --------------------
-  router.post('/register', async (req, res) => {
+  // ================== REGISTER ==================
+  router.post('/register', (req, res) => {
     const {
       firstName,
       lastName,
@@ -33,63 +35,58 @@ module.exports = (db, secretKey) => {
       paymentMethod
     } = req.body;
 
-    if (!firstName || !lastName || !password || !email || !nationality || !dateOfBirth) {
-      return res.status(400).json({
-        message: 'Please provide all required fields: names, date of birth, nationality, email, and password.'
-      });
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({ message: 'Missing required fields.' });
     }
 
     const sql = `
       INSERT INTO users
       (first_name, last_name, country, dob, phone, email, password, payment_method)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    try {
-      const result = await db.query(sql, [
-        firstName,
-        lastName,
-        nationality,
-        dateOfBirth,
-        phone,
-        email,
-        password,
-        paymentMethod
-      ]);
+    dbPool.query(
+      sql,
+      [firstName, lastName, nationality, dateOfBirth, phone, email, password, paymentMethod],
+      (err) => {
+        if (err) {
+          console.error('❌ Registration Error:', err);
 
-      res.status(201).json({ message: 'User registered successfully!', user: result.rows[0] });
+          if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ message: 'Email already exists.' });
+          }
 
-    } catch (err) {
-      console.error('Database Registration Error:', err.message);
+          return res.status(500).json({ message: 'Registration failed due to server error.' });
+        }
 
-      if (err.code === '23505') { // Postgres unique violation
-        return res.status(409).json({ message: 'Email already exists.' });
+        res.status(201).json({ message: 'User registered successfully!' });
       }
-
-      res.status(500).json({ message: 'Registration failed due to a server error.' });
-    }
+    );
   });
 
-  // -------------------- LOGIN --------------------
-  router.post('/login', async (req, res) => {
+  // ================== LOGIN ==================
+  router.post('/login', (req, res) => {
     const { email, password } = req.body;
+
     if (!email || !password) {
-      return res.status(400).json({ message: 'Please provide email and password.' });
+      return res.status(400).json({ message: 'Email and password are required.' });
     }
 
-    const sql = 'SELECT * FROM users WHERE email = $1';
+    const sql = 'SELECT * FROM users WHERE email = ?';
 
-    try {
-      const result = await db.query(sql, [email]);
+    dbPool.query(sql, [email], (err, results) => {
+      if (err) {
+        console.error('❌ Login DB Error:', err);
+        return res.status(500).json({ message: 'Login failed due to server error.' });
+      }
 
-      if (result.rows.length === 0) {
+      if (results.length === 0) {
         return res.status(401).json({ message: 'Invalid email or password.' });
       }
 
-      const user = result.rows[0];
+      const user = results[0];
 
-      // Plain-text password check (same as your original code)
+      // Plain-text password (matches your current DB)
       if (password !== user.password) {
         return res.status(401).json({ message: 'Invalid email or password.' });
       }
@@ -102,25 +99,23 @@ module.exports = (db, secretKey) => {
 
       const token = jwt.sign(payload, secretKey, { expiresIn: '30d' });
 
-      const userData = {
-        id: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        fullName: `${user.first_name} ${user.last_name}`,
-        email: user.email,
-        country: user.country,
-        paymentMethod: user.payment_method
-      };
-
-      res.json({ message: 'Login successful!', user: userData, token });
-
-    } catch (err) {
-      console.error('Database Login Error:', err.message);
-      res.status(500).json({ message: 'Login failed due to a server error.' });
-    }
+      res.json({
+        message: 'Login successful!',
+        token,
+        user: {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          fullName: `${user.first_name} ${user.last_name}`,
+          email: user.email,
+          country: user.country,
+          paymentMethod: user.payment_method
+        }
+      });
+    });
   });
 
-  // -------------------- VERIFY TOKEN --------------------
+  // ================== VERIFY TOKEN ==================
   router.get('/verify', verifyToken, (req, res) => {
     res.json({ message: 'Token is valid', user: req.user });
   });
