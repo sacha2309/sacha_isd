@@ -61,8 +61,8 @@ export default function Footer() {
             {/* Bottom */}
             <div style={{
                 textAlign: 'center',
-                marginTop: '15px',          // ⬅ smaller
-                paddingTop: '8px',          // ⬅ smaller
+                marginTop: '15px',          
+                paddingTop: '8px',         
                 borderTop: '2px solid #460357ff',
                 fontSize: '0.8em'
             }}>
@@ -72,19 +72,18 @@ export default function Footer() {
     );
 }
 
-/* ===== Styles ===== */
 
 const footerSectionStyle = {
     flex: '1',
     minWidth: '200px',
-    marginBottom: '10px',               // ⬅ smaller
+    marginBottom: '10px',               
     textAlign: 'left'
 };
 
 const footerHeadingStyle = {
     color: '#460357ff',
-    marginBottom: '15px',               // ⬅ smaller
-    fontSize: '1em'                     // ⬅ smaller
+    marginBottom: '15px',               
+    fontSize: '1em'                     
 };
 
 const footerLinkStyle = {
@@ -92,3 +91,6 @@ const footerLinkStyle = {
     textDecoration: 'none',
     fontSize: '0.9em'
 };
+//  Flexbox + minWidth ي يبدو مرتبًا ويعمل بشكل جيد على كل الشاشات: كبيرة أو صغيرة
+
+// إذا فتحت الموقع على موبايل أو لابتوب أو شاشة كبيرة، ستظل الأقسام منظمة بدون أن تختلط أو تختفي.

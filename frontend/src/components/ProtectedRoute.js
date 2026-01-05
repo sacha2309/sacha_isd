@@ -1,17 +1,18 @@
-// client/src/components/ProtectedRoute.js - TEMPORARY DEBUGGING CHANGE
+// client/src/components/ProtectedRoute.js
 
 import React from 'react';
 import { useAuth } from '../contexts/UserContext';
 import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoute = () => {
-    const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated } = useAuth();
 
+    // إذا لم يكن مسجل الدخول → أرسل المستخدم إلى الصفحة الرئيسية
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />; 
+        return <Navigate to="/" replace />; 
     }
 
-    // 3. Render the child route (UserDashboard).
+    // إذا كان مسجل الدخول → اعرض المحتوى المحمي
     return <Outlet />;
 };
 
